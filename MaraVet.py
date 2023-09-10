@@ -1,6 +1,43 @@
 from tkinter import *
 import sqlite3
 from tkinter import messagebox
+import os, sys
+
+def resource_path(relative_path):
+    # """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception as e:
+        # print(e)
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
+def createTable():
+    conn = sqlite3.connect(resource_path('prontuarios.db'))
+
+    cursor = conn.cursor()
+
+    # Criando a table que irá ser utilizada para armazenar as informações
+
+    cursor.execute(""" CREATE TABLE IF NOT EXISTS prontuarios (
+                nomePet text,
+                idadePet text,
+                nomeProprietario text,
+                celular text,
+                endereco text,
+                cidade text,
+                especie text,
+                sexo text,
+                raca text,
+                peso real,
+                observacoes text
+    )
+    """)
+
+    conn.commit()
+    conn.close()
 
 def rightFrameBuilder():
     # Adicionando scrollbar ao aplicativo utilizando o widget canvas
@@ -25,7 +62,7 @@ def rightFrameBuilder():
 
     # Criando conexão com a database
 
-    conn = sqlite3.connect('prontuarios.db')
+    conn = sqlite3.connect(resource_path('prontuarios.db'))
 
     cursor = conn.cursor()
 
@@ -79,7 +116,7 @@ def rightFrameBuilder():
 
 def newRecord():
     def submitNewRecord():
-        conn = sqlite3.connect('prontuarios.db')
+        conn = sqlite3.connect(resource_path('prontuarios.db'))
         cursor = conn.cursor()
         
         cursor.execute("""INSERT INTO prontuarios VALUES (:nomePet, :idadePet, :nomeProprietario, :celular, :endereco,
@@ -150,7 +187,7 @@ def newRecord():
 
     addRecord = Tk()
     addRecord.title('Adicionar prontuário')
-    addRecord.iconbitmap('img_ico\\add_icon.ico')
+    addRecord.iconbitmap(resource_path('img_ico\\add_icon.ico'))
     #addRecord.geometry('700x450')
     addRecord.resizable(False, False)
 
@@ -213,7 +250,7 @@ def accessRecord(oid):
         def submitUpdatedRecord():
 
             # Estabelecendo conexão com o banco de dados
-            conn = sqlite3.connect('prontuarios.db')
+            conn = sqlite3.connect(resource_path('prontuarios.db'))
             cursor = conn.cursor()
 
             cursor.execute("""UPDATE prontuarios SET
@@ -268,7 +305,7 @@ def accessRecord(oid):
         # Criando nova janela e configurando-a
         updateWindow = Tk()
         updateWindow.title('Atualizar prontuário')
-        updateWindow.iconbitmap('img_ico\\update_icon.ico')
+        updateWindow.iconbitmap(resource_path('img_ico\\update_icon.ico'))
         updateWindow.resizable(False, False)
         updateWindow.focus_force()
 
@@ -340,7 +377,7 @@ def accessRecord(oid):
     def deleteRecord():
         response = messagebox.askyesno('Deletar prontuário', 'Você tem certeza?')
         if response == 1:
-            conn = sqlite3.connect('prontuarios.db')
+            conn = sqlite3.connect(resource_path('prontuarios.db'))
             cursor = conn.cursor()
 
             cursor.execute('DELETE FROM prontuarios WHERE oid = ' + str(oid))
@@ -367,7 +404,7 @@ def accessRecord(oid):
             rightFrameBuilder()
 
     # Estabelecendo conexão com database
-    conn = sqlite3.connect('prontuarios.db')
+    conn = sqlite3.connect(resource_path('prontuarios.db'))
 
     cursor = conn.cursor()
 
@@ -377,7 +414,7 @@ def accessRecord(oid):
     # Configurando nova tela acessada
     recordWindow = Tk()
     recordWindow.title(f'Prontuário de {record[0]}')
-    recordWindow.iconbitmap('img_ico\\enter_icon.ico')
+    recordWindow.iconbitmap(resource_path('img_ico\\enter_icon.ico'))
     recordWindow.resizable(False, False)
 
     # Configurando espaço da nova tela
@@ -392,7 +429,7 @@ def accessRecord(oid):
     # Criando as Labels para identificar cada informação
     nomePetLabel = Label(recordWindow, text='Nome do Pet:', anchor='w', justify='left', width=22)
     idadePetLabel = Label(recordWindow, text='Idade do Pet:', anchor='w', justify='left', width=22)
-    nomeProprietarioLabel = Label(recordWindow, text='Nome do(a) Proprietário(a):', anchor='w', justify='left', width=25)
+    nomeProprietarioLabel = Label(recordWindow, text='Nome do(a) Proprietário(a):', anchor='w', justify='left', width=22)
     celularLabel = Label(recordWindow, text='Celular:', anchor='w', justify='left', width=22)
     enderecoLabel = Label(recordWindow, text='Endereço:', anchor='w', justify='left', width=22)
     cidadeLabel = Label(recordWindow, text='Cidade:', anchor='w', justify='left', width=22)
@@ -445,10 +482,14 @@ def accessRecord(oid):
     conn.commit()
     conn.close()
 
+# Cria a table principal do projeto
+
+createTable()
+
 # Cria a janela e define suas configurações principais
 root = Tk()
 root.title('MaraVet')
-root.iconbitmap('img_ico\\vet_icon.ico')
+root.iconbitmap('C:\\Users\\Lucas\\Projetos e atividades\\MaraVet\\img_ico\\vet_icon.ico')
 
 width = root.winfo_screenwidth()
 height = root.winfo_screenheight()
